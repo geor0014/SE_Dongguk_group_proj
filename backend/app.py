@@ -8,7 +8,7 @@ import os
 from werkzeug.utils import secure_filename
 
 
-
+# Initialize the Flask App
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
@@ -21,10 +21,13 @@ class Base(DeclarativeBase):
     pass
 
 CORS(app)
+
 db = SQLAlchemy(
     app, model_class=Base
 )
+
 bcrypt = Bcrypt(app)
+
 jwt = JWTManager(app)
 
 
@@ -41,6 +44,34 @@ class Image(db.Model):
     
 with app.app_context():
     db.create_all()
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    password = bcrypt.generate_password_hash(data.get('password')).decode('utf-8')
+    new_user = User(username=username, password=password)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify(message='User created successfully!'), 201
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    user = User.query.filter_by(username=data.get('username')).first()
+    if user and bcrypt.check_password_hash(user.password, data.get('password')):
+        access_token = create_access_token(identity={'username': user.username})
+        return jsonify(user={'access_token': access_token, 'username': user.username})
+    else:
+        return jsonify(message='Invalid creadentials'), 401
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
+    
 
 @app.route('/')
 def home():
@@ -76,11 +107,11 @@ def testdb():
     # return the users in a json format
     return jsonify(users=[user.username for user in queriedUsers], images=[image.filename for image in queriedImages])
 
-
-@app.route('/users')
+@app.route('/users', )
 def users():
     users = User.query.all()
     return jsonify(users=[user.username for user in users])
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
