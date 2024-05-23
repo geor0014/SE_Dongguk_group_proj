@@ -45,7 +45,7 @@ const getCurrentUser = () => {
   return JSON.parse(localStorage.getItem("user"));
 };
 
-const uploadImage = (file) => {
+const uploadImage = (file, description, keywords) => {
   const user = getCurrentUser();
   if (user && user.access_token) {
     const formData = new FormData();
@@ -54,6 +54,8 @@ const uploadImage = (file) => {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${user.access_token}`,
+        description,
+        keywords,
       },
     });
     return res;

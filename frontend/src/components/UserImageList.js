@@ -10,9 +10,13 @@ export default function UserImageList({ setAllImages }) {
     try {
       const fetchImages = async () => {
         const res = await authService.getImagesForUser();
-        setImages(res.data.images);
+        if (res.data) {
+          setImages(res.data.images);
+        } else {
+          setImages([]);
+        }
       };
-      if (user) {
+      if (user && user.access_token) {
         fetchImages();
       } else {
         setImages([]);
@@ -36,10 +40,16 @@ export default function UserImageList({ setAllImages }) {
     <div>
       <h1>Your Images</h1>
       {images.length > 0 ? (
-        <ul>
+        <ul
+          style={{
+            listStyleType: "none",
+          }}
+        >
           {images.map((image, index) => (
             <li key={index}>
               <img src={image.url} alt={image.name} width="100" height="100" />
+              <p>{image.description}</p>
+              <p>{image.keywords}</p>
               <button onClick={() => handleDelete(image.id)}>Delete</button>
             </li>
           ))}

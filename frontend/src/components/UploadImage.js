@@ -5,9 +5,19 @@ import { AuthContext } from "../contexts/AuthContext";
 export default function UploadImage() {
   const { user } = useContext(AuthContext);
   const [file, setFile] = useState(null);
+  const [description, setDescription] = useState("");
+  const [keywords, setKeywords] = useState("");
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+  };
+
+  const handleDescriptionChange = (e) => {
+    setDescription(e.target.value);
+  };
+
+  const handleKeywordsChange = (e) => {
+    setKeywords(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -17,9 +27,12 @@ export default function UploadImage() {
       return;
     }
     try {
-      const res = await authService.uploadImage(file);
+      if (!description || !keywords) {
+        alert("Description and keywords are required");
+        return;
+      }
+      await authService.uploadImage(file, description, keywords);
       alert("Image uploaded successfully");
-      // in order to refresh the page after uploading an image we need to reload the page
       window.location.reload();
     } catch (error) {
       console.error(error);
@@ -39,6 +52,20 @@ export default function UploadImage() {
         <h1>Upload Image</h1>
         <form onSubmit={handleSubmit}>
           <input type="file" onChange={handleFileChange} />
+          <input
+            type="text"
+            placeholder="Description"
+            name="description"
+            value={description}
+            onChange={handleDescriptionChange}
+          />
+          <input
+            type="text"
+            placeholder="Keywords"
+            name="keywords"
+            value={keywords}
+            onChange={handleKeywordsChange}
+          />
           <button type="submit">Upload</button>
         </form>
       </div>
