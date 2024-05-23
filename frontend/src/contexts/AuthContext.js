@@ -16,9 +16,12 @@ const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     const response = await authService.login(username, password);
     if (response.user.access_token) {
-      localStorage.setItem("user", JSON.stringify(response));
-      setUser(response);
-      console.log("User logged in successfully!", response);
+      const user = {
+        username: response.user.username,
+        access_token: response.user.access_token,
+      };
+      setUser(user);
+      // console.log("User logged in successfully!", response);
     }
   };
 
