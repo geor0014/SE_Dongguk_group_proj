@@ -1,6 +1,5 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
-import authService from "./services/authService";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Logout from "./components/Logout";
