@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from flask import url_for
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
@@ -78,40 +79,76 @@ def home():
     return jsonify(message='Hello World!')
 
 
-@app.route('/testdb')
-def testdb():
-        # create multiple random users
-    users = [
-        User(username='user1', password=bcrypt.generate_password_hash('password').decode('utf-8')),
-        User(username='user2', password=bcrypt.generate_password_hash('password').decode('utf-8')),
-        User(username='user3', password=bcrypt.generate_password_hash('password').decode('utf-8')),
-    ]
-    #  createa multiple Images
-    images = [
-        Image(filename='image1.jpg', user_id=1),
-        Image(filename='image2.jpg', user_id=1),
-        Image(filename='image3.jpg', user_id=2),
-        Image(filename='image4.jpg', user_id=2),
-        Image(filename='image5.jpg', user_id=3),
-        Image(filename='image6.jpg', user_id=3),
-    ]
-    
-    db.session.bulk_save_objects(users)
-    db.session.commit()
-    db.session.bulk_save_objects(images)
-    db.session.commit()
-    
-    queriedUsers = User.query.all()
-    queriedImages = Image.query.all()
-    
-    # return the users in a json format
-    return jsonify(users=[user.username for user in queriedUsers], images=[image.filename for image in queriedImages])
-
 @app.route('/users', )
 def users():
     users = User.query.all()
     return jsonify(users=[user.username for user in users])
 
+@app.route('/upload', methods=['POST'])
+@jwt_required()
+def upload():
+    if 'image' not in request.files:
+        return jsonify(message='No file part'), 400
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify(message='No selected file'), 400
+    if file: 
+        filename = secure_filename(file.filename)   
+        user_identity = get_jwt_identity()
+        user = User.query.filter_by(username=user_identity['username']).first()
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        new_image = Image(filename=filename, owner=user)
+        db.session.add(new_image)
+        db.session.commit()
+        return jsonify(message='Image uploaded successfully!'), 201
+
+@app.route('/images_for_user', methods=['GET'])
+@jwt_required()
+def images():
+    user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=user_identity['username']).first()
+    images = Image.query.filter_by(user_id=user.id).all()
+    image_data = [
+        {
+        'id': image.id,
+        'filename': image.filename,
+        'url': url_for('get_image', image_name=image.filename, _external=True)
+        } for image in images
+    ]
+    return jsonify(images=image_data)
+
+@app.route('/images', methods=['GET'])
+@jwt_required()
+def all_images():
+    images = Image.query.all()
+    image_data = [
+        {
+        'id': image.id,
+        'filename': image.filename,
+        'url': url_for('get_image', image_name=image.filename, _external=True)
+        } for image in images
+    ]
+    return jsonify(images=image_data)
+
+@app.route('/images/<image_id>', methods=['DELETE'])
+@jwt_required()
+def delete_image(image_id):
+    image = Image.query.get(image_id)
+    if image:
+        db.session.delete(image)
+        db.session.commit()
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return jsonify({'message': 'Image deleted successfully'}), 200
+    else:
+        return jsonify({'message': 'Image not found or not authorized to delete'}), 404
+
+@app.route('/uploads/<image_name>')
+# @jwt_required()
+def get_image(image_name):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], image_name)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

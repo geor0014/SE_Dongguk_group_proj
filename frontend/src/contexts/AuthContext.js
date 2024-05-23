@@ -21,7 +21,6 @@ const AuthProvider = ({ children }) => {
         access_token: response.user.access_token,
       };
       setUser(user);
-      // console.log("User logged in successfully!", response);
     }
   };
 
