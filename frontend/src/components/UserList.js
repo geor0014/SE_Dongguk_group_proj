@@ -26,7 +26,6 @@ export default function UserList() {
     }
   }, [user]);
 
-  console.log(users);
   return (
     <div>
       {users.length > 0 ? (

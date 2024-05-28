@@ -8,6 +8,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UserImageList from "./components/UserImageList";
 import ImageList from "./components/ImageList";
 import UserList from "./components/UserList";
+import SendMessage from "./components/SendMessage";
+import Inbox from "./components/Inbox";
 
 function App() {
   const [allImages, setAllImages] = useState([]);
@@ -23,6 +25,8 @@ function App() {
         <UploadImage />
         <UserImageList setAllImages={setAllImages} />
         <ImageList allImages={allImages} setAllImages={setAllImages} />
+        <SendMessage />
+        <Inbox />
       </div>
     </AuthProvider>
   );

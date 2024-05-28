@@ -128,6 +128,62 @@ const deleteImage = async (id) => {
   }
 };
 
+const sendMessage = (recipientUsername, content) => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    return axios.post(
+      `${API_URL}/send_message`,
+      { recipient_username: recipientUsername, content },
+      {
+        headers: {
+          Authorization: `Bearer ${user.access_token}`,
+        },
+      }
+    );
+  }
+};
+
+const getInbox = () => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    return axios.get(`${API_URL}/inbox`, {
+      headers: {
+        Authorization: `Bearer ${user.access_token}`,
+      },
+    });
+  }
+};
+
+const markRead = (id) => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    return axios.post(
+      `${API_URL}/read_message/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${user.access_token}`,
+        },
+      }
+    );
+  }
+};
+
+const deleteMessage = (id) => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    return axios.post(
+      `${API_URL}/delete_message/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${user.access_token}`,
+        },
+      }
+    );
+  }
+};
+
 export default {
   register,
   login,
@@ -138,4 +194,8 @@ export default {
   getImagesForUser,
   getAllImages,
   deleteImage,
+  sendMessage,
+  getInbox,
+  markRead,
+  deleteMessage,
 };

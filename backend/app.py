@@ -6,6 +6,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
 import os
+from datetime import datetime
 import sys
 
 from werkzeug.utils import secure_filename
@@ -47,9 +48,77 @@ class Image(db.Model):
     keywords = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    sender_username = db.Column(db.String(150), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient_username = db.Column(db.String(150), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False,default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, nullable=False, default=False)
+    
+    
 with app.app_context():
     db.create_all()
 
+
+@app.route('/send_message', methods=['POST'])
+@jwt_required()
+def send_message():
+    data = request.get_json()
+    sender_identity = get_jwt_identity()
+    sender =  User.query.filter_by(username=sender_identity['username']).first()
+    recipient = User.query.filter_by(username=data['recipient_username']).first()
+    if not recipient:
+        return jsonify({'message':'Recipient not fount'}),404 
+    new_message = Message(sender_id=sender.id, recipient_id=recipient.id, content=data['content'], sender_username=sender.username, recipient_username=recipient.username)
+    db.session.add(new_message)
+    db.session.commit()
+    return jsonify({'message':'Message sent successfully'}), 201
+    
+
+@app.route('/inbox',methods=['GET'])
+@jwt_required()
+def inbox():
+    user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=user_identity['username']).first()
+    messages = Message.query.filter_by(recipient_id=user.id).order_by(Message.timestamp.desc()).all()
+    messages_data = [
+        {
+            'id': message.id,
+            'sender':  message.sender_username,
+            'content': message.content,
+            'timestamp': message.timestamp,
+            'is_read': message.is_read
+        }
+        for message in messages
+    ]
+    return jsonify(messages=messages_data), 200
+
+@app.route('/read_message/<int:message_id>', methods=['POST'])
+@jwt_required()
+def read_message(message_id):
+    user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=user_identity['username']).first()
+    message = Message.query.get_or_404(message_id)
+    if message.recipient_id != user.id:
+        return jsonify({'message':'Permission denied'}), 403
+    message.is_read = True
+    db.session.commit()
+    return jsonify({'message':'Message marked as read'}), 200
+
+@app.route('/delete_message/<int:message_id>', methods=['POST'])
+@jwt_required()
+def delete_message(message_id):
+    user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=user_identity['username']).first()
+    message = Message.query.get_or_404(message_id)
+    if message.recipient_id != user.id:
+        return jsonify({'message':'Permission denied'}), 403
+    db.session.delete(message)
+    db.session.commit()
+    return jsonify({'message':'Message deleted successfully'}), 200
 
 @app.route('/register', methods=['POST'])
 def register():
