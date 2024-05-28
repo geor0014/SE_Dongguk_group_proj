@@ -27,8 +27,6 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     authService.logout();
     setUser(null);
-    // we need to refresh the page to reflect the changes
-    window.location.reload();
   };
 
   const register = async (username, password) => {

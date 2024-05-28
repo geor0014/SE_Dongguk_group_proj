@@ -47,6 +47,7 @@ class Image(db.Model):
     description = db.Column(db.String(255), nullable=True)
     keywords = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_username = db.Column(db.String(150), nullable=False)
     
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -136,7 +137,7 @@ def login():
     user = User.query.filter_by(username=data.get('username')).first()
     if user and bcrypt.check_password_hash(user.password, data.get('password')):
         access_token = create_access_token(identity={'username': user.username})
-        return jsonify(user={'access_token': access_token, 'username': user.username})
+        return jsonify(user={'access_token': access_token, 'username': user.username, 'id': user.id})
     else:
         return jsonify(message='Invalid creadentials'), 401
 
@@ -177,7 +178,7 @@ def upload():
         user = User.query.filter_by(username=user_identity['username']).first()
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        new_image = Image(filename=filename, owner=user, description=description, keywords=keywords)
+        new_image = Image(filename=filename, owner=user, description=description, keywords=keywords,user_username=user.username )
         db.session.add(new_image)
         db.session.commit()
         return jsonify(message='Image uploaded successfully!'), 201
@@ -210,6 +211,8 @@ def all_images():
         'url': url_for('get_image', image_name=image.filename, _external=True),
         'description': image.description,
         'keywords': image.keywords,
+        "owner": image.user_username,
+        "owner_id": image.user_id,
         } for image in images
     ]
     return jsonify(images=image_data)

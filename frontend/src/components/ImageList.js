@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function UserImageList({ allImages, setAllImages }) {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   useEffect(() => {
     try {
       const fetchImages = async () => {
@@ -23,6 +25,11 @@ export default function UserImageList({ allImages, setAllImages }) {
       console.error(error);
     }
   }, [user]);
+
+  const handleSendMessage = async (recipient) => {
+    // navigate to the send message page
+    navigate(`/sendmessage/${recipient}`);
+  };
 
   return (
     <div>
@@ -44,6 +51,14 @@ export default function UserImageList({ allImages, setAllImages }) {
                 />
                 <p>{image.description}</p>
                 <p>{image.keywords}</p>
+                <p>Posted by {image.owner}</p>
+                {user.id !== image.owner_id ? (
+                  <button onClick={() => handleSendMessage(image.owner)}>
+                    Send Message
+                  </button>
+                ) : (
+                  <div></div>
+                )}
               </li>
             ))}
           </ul>

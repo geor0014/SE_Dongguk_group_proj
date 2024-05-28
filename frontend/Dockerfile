@@ -12,8 +12,8 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install 
 
-# install axios
-RUN npm install axios
+# install axios and react-router-dom
+RUN npm install axios react-router-dom --save
 
 # Copy rest of the files
 COPY . .

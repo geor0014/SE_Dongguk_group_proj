@@ -1,32 +1,29 @@
 import React, { useContext, useState } from "react";
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function SendMessage() {
+  const { recipient } = useParams();
   const { user } = useContext(AuthContext);
-  const [recipientUsername, setRecipientUsername] = useState("");
   const [content, setContent] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await authService.sendMessage(recipientUsername, content);
-    setRecipientUsername("");
+    await authService.sendMessage(recipient, content);
     setContent("");
     alert("Message sent!");
+    navigate("/");
   };
 
   return (
     <div>
       {user ? (
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Recipient username"
-            value={recipientUsername}
-            onChange={(e) => setRecipientUsername(e.target.value)}
-          />
+          <h2>Send a message to {recipient}</h2>
           <textarea
-            placeholder="Message content"
+            placeholder="Message"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />

@@ -1,10 +1,13 @@
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
 
 export default function Inbox() {
   const { user } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInbox = async () => {
@@ -38,6 +41,10 @@ export default function Inbox() {
     }
   };
 
+  const handleReply = (recipient) => {
+    navigate(`/sendmessage/${recipient}`);
+  };
+
   return (
     <div>
       {user ? (
@@ -57,11 +64,7 @@ export default function Inbox() {
                     Mark as read
                   </button>
                 )}
-                <button
-                  onClick={() =>
-                    console.log(`Reply to ${message.sender_username}`)
-                  }
-                >
+                <button onClick={() => handleReply(message.sender)}>
                   Reply
                 </button>
                 <button onClick={() => handleDelete(message.id)}>Delete</button>
