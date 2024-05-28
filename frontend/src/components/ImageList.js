@@ -26,23 +26,30 @@ export default function UserImageList({ allImages, setAllImages }) {
 
   return (
     <div>
-      <h1>All Images</h1>
       {allImages.length > 0 ? (
-        <ul
-          style={{
-            listStyleType: "none",
-          }}
-        >
-          {allImages.map((image, index) => (
-            <li key={index}>
-              <img src={image.url} alt={image.name} width="100" height="100" />
-              <p>{image.description}</p>
-              <p>{image.keywords}</p>
-            </li>
-          ))}
-        </ul>
+        <div>
+          <h1>All Images</h1>
+          <ul
+            style={{
+              listStyleType: "none",
+            }}
+          >
+            {allImages.map((image, index) => (
+              <li key={index}>
+                <img
+                  src={image.url}
+                  alt={image.name}
+                  width="100"
+                  height="100"
+                />
+                <p>{image.description}</p>
+                <p>{image.keywords}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
-        <p>No images found</p>
+        <div></div>
       )}
     </div>
   );

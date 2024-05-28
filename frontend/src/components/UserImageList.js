@@ -38,7 +38,6 @@ export default function UserImageList({ setAllImages }) {
 
   return (
     <div>
-      <h1>Your Images</h1>
       {images.length > 0 ? (
         <ul
           style={{
@@ -55,7 +54,7 @@ export default function UserImageList({ setAllImages }) {
           ))}
         </ul>
       ) : (
-        <p>No images found</p>
+        <div></div>
       )}
     </div>
   );

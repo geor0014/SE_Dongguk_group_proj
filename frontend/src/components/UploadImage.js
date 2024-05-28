@@ -40,12 +40,7 @@ export default function UploadImage() {
   };
 
   if (!user) {
-    return (
-      <div>
-        <h1>Upload Image</h1>
-        <p>You need to be logged in to upload an image</p>
-      </div>
-    );
+    return <div></div>;
   } else {
     return (
       <div>
