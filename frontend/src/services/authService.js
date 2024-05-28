@@ -45,6 +45,20 @@ const getCurrentUser = () => {
   return JSON.parse(localStorage.getItem("user"));
 };
 
+const getAllUsers = async () => {
+  // when user is not logged in, we display all users
+  try {
+    const res = await axios.get(`${API_URL}/users`);
+    if (res.data.users) {
+      return res.data.users;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const uploadImage = (file, description, keywords) => {
   const user = getCurrentUser();
   if (user && user.access_token) {
@@ -119,6 +133,7 @@ export default {
   login,
   logout,
   getCurrentUser,
+  getAllUsers,
   uploadImage,
   getImagesForUser,
   getAllImages,

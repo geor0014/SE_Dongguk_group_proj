@@ -7,6 +7,7 @@ import UploadImage from "./components/UploadImage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UserImageList from "./components/UserImageList";
 import ImageList from "./components/ImageList";
+import UserList from "./components/UserList";
 
 function App() {
   const [allImages, setAllImages] = useState([]);
@@ -18,11 +19,11 @@ function App() {
         <Login />
         <Logout />
         {/* <ProtectedRoute /> */}
+        <UserList />
         <UploadImage />
         <UserImageList setAllImages={setAllImages} />
         <ImageList allImages={allImages} setAllImages={setAllImages} />
       </div>
-      ;
     </AuthProvider>
   );
 }
