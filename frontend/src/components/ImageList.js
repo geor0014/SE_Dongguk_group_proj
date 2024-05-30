@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function UserImageList({ allImages, setAllImages }) {
   const { user } = useContext(AuthContext);

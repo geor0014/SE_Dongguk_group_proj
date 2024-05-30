@@ -14,6 +14,7 @@ import Inbox from "./components/Inbox";
 import NavBar from "./components/NavBar";
 import authService from "./services/authService";
 import SearchResults from "./components/SearchResults";
+import EditImage from "./components/EditImage";
 
 function App() {
   const [allImages, setAllImages] = useState([]);
@@ -65,6 +66,10 @@ function App() {
             <Route
               path="/search"
               element={<ProtectedRoute children={<SearchResults />} />}
+            />
+            <Route
+              path="edit-image/:id"
+              element={<ProtectedRoute children={<EditImage />} />}
             />
           </Routes>
         </div>

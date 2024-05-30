@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 export default function UserImageList({ setAllImages }) {
   const [images, setImages] = useState([]);
@@ -50,6 +51,7 @@ export default function UserImageList({ setAllImages }) {
               <p>{image.description}</p>
               <p>{image.keywords}</p>
               <button onClick={() => handleDelete(image.id)}>Delete</button>
+              <Link to={`/edit-image/${image.id}`}>Edit</Link>
             </li>
           ))}
         </ul>
