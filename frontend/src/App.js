@@ -13,6 +13,7 @@ import SendMessage from "./components/SendMessage";
 import Inbox from "./components/Inbox";
 import NavBar from "./components/NavBar";
 import authService from "./services/authService";
+import SearchResults from "./components/SearchResults";
 
 function App() {
   const [allImages, setAllImages] = useState([]);
@@ -60,6 +61,10 @@ function App() {
             <Route
               path="/inbox"
               element={<ProtectedRoute children={<Inbox />} />}
+            />
+            <Route
+              path="/search"
+              element={<ProtectedRoute children={<SearchResults />} />}
             />
           </Routes>
         </div>

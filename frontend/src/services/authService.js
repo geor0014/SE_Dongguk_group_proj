@@ -185,6 +185,20 @@ const deleteMessage = (id) => {
   }
 };
 
+const searchImages = (query) => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    return axios.get(`${API_URL}/search`, {
+      headers: {
+        Authorization: `Bearer ${user.access_token}`,
+      },
+      params: {
+        query,
+      },
+    });
+  }
+};
+
 export default {
   register,
   login,
@@ -199,4 +213,5 @@ export default {
   getInbox,
   markRead,
   deleteMessage,
+  searchImages,
 };

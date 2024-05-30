@@ -1,15 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 
 export default function NavBar() {
   const user = authService.getCurrentUser();
+  const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
   const handleLogout = () => {
     authService.logout();
     navigate("/");
     window.location.reload();
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate(`/search?query=${query}`);
   };
 
   return (
@@ -26,6 +32,20 @@ export default function NavBar() {
           <li>
             <Link to="/inbox">Inbox</Link>
           </li>
+        )}
+        {user && (
+          <>
+            <li>
+              <form onSubmit={handleSearch}>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                <button type="submit">Search</button>
+              </form>
+            </li>
+          </>
         )}
 
         {!user && (

@@ -236,5 +236,29 @@ def delete_image(image_id):
 def get_image(image_name):
     return send_from_directory(app.config['UPLOAD_FOLDER'], image_name)
 
+@app.route('/search',methods=['GET'])
+@jwt_required()
+def search_images():
+    query = request.args.get('query')
+    if not query:
+        return jsonify([]), 200
+    
+    images = Image.query.filter(Image.keywords.contains(query)).all()
+    
+    result = [
+        {
+            'id': image.id,
+            'filename': image.filename,
+            'url': url_for('get_image', image_name=image.filename, _external=True),
+            'description': image.description,
+            'keywords': image.keywords,
+            "owner": image.user_username,
+            "owner_id": image.user_id,
+        } for image in images
+    ]
+    
+    return jsonify(images=result), 200
+
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
