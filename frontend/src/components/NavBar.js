@@ -16,6 +16,8 @@ export default function NavBar() {
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(`/search?query=${query}`);
+    // clear the search input
+    setQuery("");
   };
 
   return (
