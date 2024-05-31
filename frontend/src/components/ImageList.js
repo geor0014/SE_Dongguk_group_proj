@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function UserImageList({ allImages, setAllImages }) {
   const { user } = useContext(AuthContext);
@@ -71,9 +71,7 @@ export default function UserImageList({ allImages, setAllImages }) {
                     <h4 className="text-sm text-gray-500">
                       {image.description}
                     </h4>
-                    {/* <p className="text-sm text-gray-500"> {image.keywords}</p> */}
                     <div className="flex flex-wrap mt-4">
-                      {/* filter keywods, remove all non-text items, split and map */}
                       {image.keywords
                         .replace(/[^a-zA-Z ]/g, "")
                         .split(" ")
