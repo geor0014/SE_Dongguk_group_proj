@@ -23,55 +23,57 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="App">
+        <div className="App bg-gray-100 min-h-screen">
           <NavBar />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                user ? (
+          <div className="container mx-auto py-4">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  user ? (
+                    <ProtectedRoute
+                      children={
+                        <ImageList
+                          allImages={allImages}
+                          setAllImages={setAllImages}
+                        />
+                      }
+                    />
+                  ) : (
+                    <UserList />
+                  )
+                }
+              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route
+                path="/uploadImage"
+                element={<ProtectedRoute children={<UploadImage />} />}
+              />
+              <Route
+                path="/userImageList"
+                element={
                   <ProtectedRoute
-                    children={
-                      <ImageList
-                        allImages={allImages}
-                        setAllImages={setAllImages}
-                      />
-                    }
+                    children={<UserImageList setAllImages={setAllImages} />}
                   />
-                ) : (
-                  <UserList />
-                )
-              }
-            />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/logout" element={<Logout />} />
-            <Route
-              path="/uploadImage"
-              element={<ProtectedRoute children={<UploadImage />} />}
-            />
-            <Route
-              path="/userImageList"
-              element={
-                <ProtectedRoute
-                  children={<UserImageList setAllImages={setAllImages} />}
-                />
-              }
-            />
-            <Route path="/sendmessage/:recipient" element={<SendMessage />} />
-            <Route
-              path="/inbox"
-              element={<ProtectedRoute children={<Inbox />} />}
-            />
-            <Route
-              path="/search"
-              element={<ProtectedRoute children={<SearchResults />} />}
-            />
-            <Route
-              path="edit-image/:id"
-              element={<ProtectedRoute children={<EditImage />} />}
-            />
-          </Routes>
+                }
+              />
+              <Route path="/sendmessage/:recipient" element={<SendMessage />} />
+              <Route
+                path="/inbox"
+                element={<ProtectedRoute children={<Inbox />} />}
+              />
+              <Route
+                path="/search"
+                element={<ProtectedRoute children={<SearchResults />} />}
+              />
+              <Route
+                path="edit-image/:id"
+                element={<ProtectedRoute children={<EditImage />} />}
+              />
+            </Routes>
+          </div>
         </div>
       </Router>
     </AuthProvider>
