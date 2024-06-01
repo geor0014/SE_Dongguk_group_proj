@@ -113,6 +113,22 @@ const getAllImages = async () => {
   }
 };
 
+const getSingleImage = async (id) => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    try {
+      const res = await axios.get(`${API_URL}/images/${id}`, {
+        headers: {
+          Authorization: `Bearer ${user.access_token}`,
+        },
+      });
+      return res;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+};
+
 const deleteImage = async (id) => {
   const user = getCurrentUser();
   if (user && user.access_token) {
@@ -185,6 +201,39 @@ const deleteMessage = (id) => {
   }
 };
 
+const searchImages = (query) => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    return axios.get(`${API_URL}/search`, {
+      headers: {
+        Authorization: `Bearer ${user.access_token}`,
+      },
+      params: {
+        query,
+      },
+    });
+  }
+};
+
+const updateImage = (id, description, keywords) => {
+  const user = getCurrentUser();
+  if (user && user.access_token) {
+    try {
+      return axios.post(
+        `${API_URL}/images/${id}`,
+        { description, keywords },
+        {
+          headers: {
+            Authorization: `Bearer ${user.access_token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+};
+
 export default {
   register,
   login,
@@ -199,4 +248,7 @@ export default {
   getInbox,
   markRead,
   deleteMessage,
+  searchImages,
+  updateImage,
+  getSingleImage,
 };

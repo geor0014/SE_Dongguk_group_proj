@@ -1,54 +1,45 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
-import { Link } from "react-router-dom";
 
-export default function UserImageList({ setAllImages }) {
-  const [images, setImages] = useState([]);
+export default function SearchResults() {
+  const [searchResults, setSearchResults] = useState([]);
+  const location = useLocation();
+  const query = new URLSearchParams(location.search).get("query");
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    try {
-      const fetchImages = async () => {
-        const res = await authService.getImagesForUser();
-        if (res.data) {
-          setImages(res.data.images);
-        } else {
-          setImages([]);
-        }
-      };
-      if (user && user.access_token) {
-        fetchImages();
+    const fetchSearchResults = async () => {
+      const res = await authService.searchImages(query);
+      if (res.data.images.length) {
+        setSearchResults(res.data.images);
       } else {
-        setImages([]);
+        setSearchResults([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [user]);
+    };
+    fetchSearchResults();
+  }, [query]);
 
-  const handleDelete = async (id) => {
-    try {
-      await authService.deleteImage(id);
-      setImages(images.filter((image) => image.id !== id));
-      setAllImages((allImages) => allImages.filter((image) => image.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
+  const handleSendMessage = async (recipient) => {
+    // navigate to the send message page
+    navigate(`/sendmessage/${recipient}`);
   };
 
   return (
     <>
-      {images.length > 0 && (
+      {searchResults.length > 0 && (
         <section className="bg-white">
           <div className="container px-6 py-10 mx-auto">
             <div className="text-center">
               <h1 className="text-2xl font-semibold text-gray-800 capitalize lg:text-3xl">
-                Your Images
+                Results for "{query}"
               </h1>
             </div>
             <div className="grid grid-cols-1 gap-8 mt-8 md:mt-16 md:grid-cols-2 xl:grid-cols-3">
-              {images.map((image, index) => {
+              {searchResults.map((image, index) => {
                 return (
                   <div key={index}>
                     <div className="relative">
@@ -57,7 +48,7 @@ export default function UserImageList({ setAllImages }) {
                         src={image.url}
                         alt={image.name}
                       />
-                      {/* <div className="absolute bottom-0 flex p-3 bg-white dark:bg-gray-900 ">
+                      <div className="absolute bottom-0 flex p-3 bg-white dark:bg-gray-900 ">
                         <img
                           className="object-cover object-center w-10 h-10 rounded-full"
                           src={`https://loremflickr.com/320/240/cat?random=${index}`}
@@ -68,7 +59,7 @@ export default function UserImageList({ setAllImages }) {
                             {image.owner}
                           </h1>
                         </div>
-                      </div> */}
+                      </div>
                     </div>
                     <h1 className="mt-6 text-xl font-semibold text-gray-800 dark:text-white">
                       {image.name}
@@ -92,20 +83,16 @@ export default function UserImageList({ setAllImages }) {
                           );
                         })}
                     </div>
-                    <div className="mt-2">
-                      <button
-                        className="px-4 py-2 text-sm font-medium text-white capitalize transition-colors duration-300 transform bg-red-500 rounded-lg hover:bg-red-400 focus:outline-none focus:ring focus:ring-red-300 focus:ring-opacity-50"
-                        onClick={() => handleDelete(image.id)}
-                      >
-                        Delete
-                      </button>
-                      <Link
-                        to={`/edit-image/${image.id}`}
-                        className="px-4 py-2 ml-2 text-sm font-medium text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                      >
-                        Edit
-                      </Link>
-                    </div>
+                    {user.id !== image.owner_id && (
+                      <div className="mt-2">
+                        <button
+                          onClick={() => handleSendMessage(image.owner)}
+                          className="px-4 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
+                        >
+                          Send Message
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}

@@ -231,10 +231,75 @@ def delete_image(image_id):
     else:
         return jsonify({'message': 'Image not found or not authorized to delete'}), 404
 
+@app.route('/images/<image_id>', methods=['GET'])
+@jwt_required()
+def get_image_data(image_id):
+    image = Image.query.get(image_id)
+    if not image:
+        return jsonify({'message':'Image not found'}), 404
+    image_data = {
+        'id': image.id,
+        'filename': image.filename,
+        'url': url_for('get_image', image_name=image.filename, _external=True),
+        'description': image.description,
+        'keywords': image.keywords,
+        "owner": image.user_username,
+        "owner_id": image.user_id,
+    }
+    return jsonify(image=image_data), 200
+
+@app.route('/images/<image_id>', methods=['POST'])
+@jwt_required()
+def update_image(image_id):
+    current_user = get_jwt_identity()
+    data = request.get_json()
+    
+    description = data.get('description')
+    keywords = data.get('keywords')
+        
+    image = Image.query.get(image_id)
+    if not image:
+        return jsonify({'message':'Image not found'}), 404
+    
+    if image.user_username != current_user['username']:
+        return jsonify({'message':'Permission denied'}), 403
+    
+    image.description = description
+    image.keywords = keywords
+    
+    db.session.commit()
+    
+    return jsonify({'message':'Image updated successfully'}), 200
+    
+    
 @app.route('/uploads/<image_name>')
 # @jwt_required()
 def get_image(image_name):
     return send_from_directory(app.config['UPLOAD_FOLDER'], image_name)
 
+@app.route('/search',methods=['GET'])
+@jwt_required()
+def search_images():
+    query = request.args.get('query')
+    if not query:
+        return jsonify([]), 200
+    
+    images = Image.query.filter(Image.keywords.contains(query)).all()
+    
+    result = [
+        {
+            'id': image.id,
+            'filename': image.filename,
+            'url': url_for('get_image', image_name=image.filename, _external=True),
+            'description': image.description,
+            'keywords': image.keywords,
+            "owner": image.user_username,
+            "owner_id": image.user_id,
+        } for image in images
+    ]
+    
+    return jsonify(images=result), 200
+
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

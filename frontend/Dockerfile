@@ -12,8 +12,13 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install 
 
-# install axios and react-router-dom
-RUN npm install axios react-router-dom --save
+# install axios and react-router-dom 
+RUN npm install axios react-router-dom --save 
+
+# install tailwindcss
+RUN npm install tailwindcss
+RUN npx tailwindcss init 
+
 
 # Copy rest of the files
 COPY . .
