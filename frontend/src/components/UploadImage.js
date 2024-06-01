@@ -1,12 +1,14 @@
 import React, { useContext, useState } from "react";
 import authService from "../services/authService";
 import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function UploadImage() {
   const { user } = useContext(AuthContext);
   const [file, setFile] = useState(null);
   const [description, setDescription] = useState("");
   const [keywords, setKeywords] = useState("");
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -31,9 +33,11 @@ export default function UploadImage() {
         alert("Description and keywords are required");
         return;
       }
-      await authService.uploadImage(file, description, keywords);
+      const trimmedDescription = description.trim();
+      const trimmedKeywords = keywords.trim();
+      await authService.uploadImage(file, trimmedDescription, trimmedKeywords);
       alert("Image uploaded successfully");
-      window.location.reload();
+      navigate("/userImageList");
     } catch (error) {
       console.error(error);
     }
