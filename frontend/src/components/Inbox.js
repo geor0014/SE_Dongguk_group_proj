@@ -22,16 +22,16 @@ export default function Inbox() {
     }
   }, [user, setMessages]);
 
-  const handleMarkRead = async (id) => {
-    try {
-      await authService.markRead(id);
-      setMessages(
-        messages.map((m) => (m.id === id ? { ...m, read: true } : m))
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const handleMarkRead = async (id) => {
+  //   try {
+  //     await authService.markRead(id);
+  //     setMessages(
+  //       messages.map((m) => (m.id === id ? { ...m, read: true } : m))
+  //     );
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const handleDelete = async (id) => {
     try {
@@ -81,6 +81,7 @@ export default function Inbox() {
                         src={`https://loremflickr.com/320/240/cat?random=1}`}
                         loading="lazy"
                         className="h-full w-full object-cover"
+                        alt="profile-pic"
                       />
                     </div>
                     <div className="flex flex-col">
